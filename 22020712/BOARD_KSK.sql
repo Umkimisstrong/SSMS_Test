@@ -1,0 +1,76 @@
+-- 001. DB 접근 : TEST_KSK
+USE TEST_KSK;
+
+-- 002. 테이블 생성(1) / 회원 / TB_USER
+CREATE TABLE TB_USER
+(
+	U_ID	VARCHAR(200)	NOT NULL	-- 아이디(이메일)
+  ,	U_PWD	CHAR(14)		NOT NULL	-- 비밀번호(주민번호)
+  , U_NAME  VARCHAR(20)		NOT NULL	-- 이름 
+  , U_TEL	VARCHAR(13)		NOT NULL	-- 전화번호 010-1111-1111
+  , CONSTRAINT CT_USER_ID_PK PRIMARY KEY(U_ID)
+);
+--==>> Commands completed successfully.
+
+
+
+-- 002. 테이블 생성(2) / 게시물 / TB_BOARD
+CREATE TABLE TB_BOARD
+(
+	BOARD_ID		INT				NOT NULL  -- 번호
+  , BOARD_TITLE		VARCHAR(300)	NOT NULL  -- 제목
+  , BOARD_CONTENT	VARCHAR(8000)	NOT NULL  -- 내용
+  , BOARD_HITCOUNT  INT				DEFAULT 0 -- 조회수
+  , BOARD_DATE		DATE			DEFAULT GETDATE()   -- 날짜
+  , U_ID			VARCHAR(200)	NOT NULL  -- 작성자 ID(이메일)
+  , CONSTRAINT CT_BOARD_ID_PK PRIMARY KEY(BOARD_ID)
+  , CONSTRAINT CT_BOARD_UID_FK FOREIGN KEY(U_ID)
+			   REFERENCES TB_USER(U_ID)
+);
+--==>> Commands completed successfully.
+
+DROP TABLE TB_USER;
+
+-- 002. 테이블 생성(3) / 댓글 / TB_REPLY
+CREATE TABLE TB_REPLY
+(
+	REPLY_ID		INT				NOT NULL
+  , REPLY_CONTENT	VARCHAR(100)	NOT NULL
+  , REPLY_DATE		DATE			DEFAULT GETDATE()
+  , U_ID			VARCHAR(200)	NOT NULL
+  , BOARD_ID		INT				NOT NULL		
+  , CONSTRAINT CT_REPLY_ID_PK	PRIMARY KEY(REPLY_ID)
+  , CONSTRAINT CT_REPLY_UID_FK	FOREIGN KEY(U_ID)
+			   REFERENCES TB_USER(U_ID)
+  , CONSTRAINT CT_REPLY_BOARDID_FK	FOREIGN KEY(BOARD_ID)
+			   REFERENCES TB_BOARD(BOARD_ID)
+);
+--==>> Commands completed successfully.
+
+-- 003. 데이터 입력(1) 회원 / TB_USER
+INSERT INTO TB_USER(U_ID, U_PWD, U_NAME, U_TEL)
+VALUES('skkim@mostisoft.com', '961004-1030721', '김상기', '010-5693-4223');
+--==>> (1 row affected)
+
+INSERT INTO TB_USER(U_ID, U_PWD, U_NAME, U_TEL)
+VALUES('hskim@mostisoft.com', '961004-1112223', '김효섭', '010-2233-4443');
+--==>> (1 row affected)
+
+-- 003. 데이터 입력(2) 게시물 / TB_BOARD -- 여기부터 시작
+INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT)
+VALUES((SELECT COUNT(*) + 1 AS [COUNT]
+FROM TB_BOARD),  );
+
+SELECT COUNT(*) + 1 AS [COUNT]
+FROM TB_BOARD;
+
+-- 004. 데이터 수정
+
+-- 005. 데이터 삭제
+
+-- 005. 데이터 조회
+
+
+
+
+
