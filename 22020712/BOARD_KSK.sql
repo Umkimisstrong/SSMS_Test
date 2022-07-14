@@ -46,7 +46,7 @@ CREATE TABLE TB_REPLY
 			   REFERENCES TB_BOARD(BOARD_ID)
 );
 --==>> Commands completed successfully.
-
+----------------------------------------------------------------------------------------
 -- 003. 데이터 입력(1) 회원 / TB_USER
 INSERT INTO TB_USER(U_ID, U_PWD, U_NAME, U_TEL)
 VALUES('skkim@mostisoft.com', '961004-1030721', '김상기', '010-5693-4223');
@@ -55,8 +55,9 @@ VALUES('skkim@mostisoft.com', '961004-1030721', '김상기', '010-5693-4223');
 INSERT INTO TB_USER(U_ID, U_PWD, U_NAME, U_TEL)
 VALUES('hskim@mostisoft.com', '961004-1112223', '김효섭', '010-2233-4443');
 --==>> (1 row affected)
+-----------------------------------------------------------------------------------------
 
--- 003. 데이터 입력(2) 게시물 / TB_BOARD -- 여기부터 시작
+-- 003. 데이터 입력(2) 게시물 / TB_BOARD
 INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID)
 VALUES(
 		(SELECT COUNT(*) + 1 AS [COUNT]
@@ -75,6 +76,51 @@ VALUES(
 		, 'hskim@mostisoft.com');
 --==>> (1 row affected)
 
+INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID)
+VALUES(
+		(SELECT COUNT(*) + 1 AS [COUNT]
+		 FROM TB_BOARD)
+		, '안녕하세요, 김효섭 아닙니다..'
+		, '김효섭의 인상말'
+		, 'hskim@mostisoft.com');
+--==>>(1 row affected)
+
+---------------------------------------------------------------
+-- 003. 데이터 입력(3) 댓글 / TB_REPLY
+INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
+VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
+		 FROM TB_REPLY)
+		 , '안녕하세요 저는 김효섭 이에요'
+		 , 'hskim@mostisoft.com'
+		 , 1);
+--==>> (1 row affected)
+INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
+VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
+		 FROM TB_REPLY)
+		 , '안녕하세요 저는 김효섭 이아니에요'
+		 , 'hskim@mostisoft.com'
+		 , 1);
+
+INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
+VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
+		 FROM TB_REPLY)
+		 , '안녕하세요 저는 김효섭 바보에요'
+		 , 'hskim@mostisoft.com'
+		 , 1);
+
+INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
+VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
+		 FROM TB_REPLY)
+		 , '안녕하세요 저는 김상기에요'
+		 , 'skkim@mostisoft.com'
+		 , 2);
+
+--==>> (1 row affected)
+
+
+
+
+
 -- BOARD_LIST 게시판리스트에 출력되는 내용
 SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM]
      , B.BOARD_ID
@@ -88,8 +134,12 @@ FROM TB_BOARD B JOIN TB_USER U
 -- view 생성
 CREATE VIEW BOARD_LIST_VIEW
 AS
-SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM], B.BOARD_ID, B.BOARD_TITLE, B.BOARD_HITCOUNT, B.BOARD_DATE, U.U_NAME FROM TB_BOARD B JOIN TB_USER U 	 ON B.U_ID = U.U_ID;
+SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM], B.BOARD_ID, B.BOARD_TITLE, B.BOARD_CONTENT, B.BOARD_HITCOUNT, B.BOARD_DATE, U.U_NAME FROM TB_BOARD B JOIN TB_USER U 	 ON B.U_ID = U.U_ID;
 --==>> Commands completed successfully.
+
+ALTER VIEW BOARD_LIST_VIEW
+AS
+SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM], B.BOARD_ID, B.BOARD_TITLE, B.BOARD_CONTENT, B.BOARD_HITCOUNT, B.BOARD_DATE, U.U_NAME FROM TB_BOARD B JOIN TB_USER U 	 ON B.U_ID = U.U_ID;
 
 SELECT *
 FROM BOARD_LIST_VIEW;
@@ -99,11 +149,19 @@ SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BO
 
 
 
+
 -- 004. 데이터 수정
+
 
 -- 005. 데이터 삭제
 
 -- 005. 데이터 조회
+
+-- BOARD_LIST 에서 게시물 출력
+SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BOARD_LIST_VIEW;
+-- BOARD_DETAIL 에서 게시물 내용까지 출력
+-- 필요한 데이터 : BOARD_CONTENT / TB_REPLY 의 댓글
+-- 
 
 
 
