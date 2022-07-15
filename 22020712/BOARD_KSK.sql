@@ -28,8 +28,16 @@ CREATE TABLE TB_BOARD
 			   REFERENCES TB_USER(U_ID)
 );
 --==>> Commands completed successfully.
+ALTER TABLE TB_BOARD
+ADD DEL_CHECK	INT	DEFAULT 0;
 
-DROP TABLE TB_USER;
+SELECT *
+FROM TB_BOARD;
+
+
+
+
+
 
 -- 002. 테이블 생성(3) / 댓글 / TB_REPLY
 CREATE TABLE TB_REPLY
@@ -85,6 +93,8 @@ VALUES(
 		, 'hskim@mostisoft.com');
 --==>>(1 row affected)
 
+-- 한 줄 구성
+INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID) VALUES( (SELECT COUNT(*) + 1 AS [COUNT] FROM TB_BOARD), '안녕하세요, 김효섭 아닙니다..', '김효섭의 인상말', 'hskim@mostisoft.com')
 ---------------------------------------------------------------
 -- 003. 데이터 입력(3) 댓글 / TB_REPLY
 INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
@@ -113,9 +123,13 @@ VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
 		 FROM TB_REPLY)
 		 , '안녕하세요 저는 김상기에요'
 		 , 'skkim@mostisoft.com'
-		 , 2);
+		 , 2); 
 
 --==>> (1 row affected)
+
+-- 한 줄 구성
+INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)VALUES ( (SELECT COUNT(*) + 1 AS [COUNT] FROM TB_REPLY), '안녕하세요 저는 김상기에요', 'skkim@mostisoft.com', 2)
+
 
 
 
@@ -139,7 +153,8 @@ SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM], B.BOARD_ID, B.BOARD_T
 
 ALTER VIEW BOARD_LIST_VIEW
 AS
-SELECT ROW_NUMBER() OVER(ORDER BY B.BOARD_ID) AS [ROWNUM], B.BOARD_ID, B.BOARD_TITLE, B.BOARD_CONTENT, B.BOARD_HITCOUNT, B.BOARD_DATE, U.U_NAME FROM TB_BOARD B JOIN TB_USER U 	 ON B.U_ID = U.U_ID;
+SELECT B.BOARD_ID, B.BOARD_TITLE, B.BOARD_CONTENT, B.BOARD_HITCOUNT, B.BOARD_DATE, B.U_ID, B.DEL_CHECK, U.U_NAME FROM TB_BOARD B JOIN TB_USER U ON B.U_ID = U.U_ID;
+--==>> Commands completed successfully.
 
 SELECT *
 FROM BOARD_LIST_VIEW;
@@ -151,9 +166,29 @@ SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BO
 
 
 -- 004. 데이터 수정
+UPDATE TB_BOARD
+SET BOARD_TITLE = '안녕하세요 수정했어요', BOARD_CONTENT = '안녕하세요 진짜수정한거이에요'
+WHERE BOARD_ID = 3;
+--==>> (1 row affected)
+
+UPDATE TB_BOARD SET BOARD_TITLE = '안녕하세요 수정했어요', BOARD_CONTENT = '안녕하세요 진짜수정한거이에요' WHERE BOARD_ID = 3
+;
 
 
--- 005. 데이터 삭제
+-- 005. 데이터 삭제 -- TB_BOARD 의 DEL_CHECK 을 1로 업데이트
+UPDATE TA_BOARD SET DEL_CHECK = 1 WHERE BOARD_ID = 1;
+SELECT *
+FROM TB_BOARD;
+
+
+SELECT *
+FROM TB_BOARD;
+DELETE
+FROM TB_BOARD;
+
+DELETE
+FROM TB_REPLY;
+
 
 -- 005. 데이터 조회
 
@@ -161,7 +196,7 @@ SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BO
 SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BOARD_LIST_VIEW;
 -- BOARD_DETAIL 에서 게시물 내용까지 출력
 -- 필요한 데이터 : BOARD_CONTENT / TB_REPLY 의 댓글
--- 
+
 
 
 
