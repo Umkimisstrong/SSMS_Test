@@ -1,0 +1,23 @@
+connectionString(연결문자열)
+Server=localhost\SQLEXPRESS;Database=master;Trusted_Connection=True;
+
+SQL SERVER 설치 로그 폴더
+C:\Program Files\Microsoft SQL Server\150\Setup Bootstrap\Log\20220716_120715
+
+설치 미디어 폴더
+C:\SQL2019\Express_KOR
+
+설치 리소스 폴더
+C:\Program Files\Microsoft SQL Server\150\SSEI\Resources
+
+인스턴스 이름
+SQLEXPRESS
+
+SQL관리자
+DESKTOP-87OAF3G\KIMSANGKI
+
+기능 설치됨
+SQLENGINE
+
+버전
+15.0.2000.5, RTM
