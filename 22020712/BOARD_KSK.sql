@@ -82,6 +82,7 @@ VALUES(
 		, '안녕하세요, 김효섭 입니다.'
 		, '김효섭의 인삿말'
 		, 'hskim@mostisoft.com');
+
 --==>> (1 row affected)
 
 INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID)
@@ -196,6 +197,12 @@ FROM TB_REPLY;
 SELECT ROWNUM, BOARD_ID, BOARD_TITLE, BOARD_HITCOUNT, BOARD_DATE, U_NAME FROM BOARD_LIST_VIEW;
 -- BOARD_DETAIL 에서 게시물 내용까지 출력
 -- 필요한 데이터 : BOARD_CONTENT / TB_REPLY 의 댓글
+
+
+
+
+
+
 
 
 
