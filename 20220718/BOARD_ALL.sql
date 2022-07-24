@@ -62,17 +62,24 @@ VALUES('hskim@mostisoft.com', '961004-1112223', '김효섭', '010-2233-4443');
 -- 003. 데이터 입력(2) 게시물 / TB_BOARD
 INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID)
 VALUES(
-		(SELECT COUNT(*) + 1 AS [COUNT]
-		FROM TB_BOARD)
+		(NEXT VALUE FOR BOARD_SEQ)
 		, '안녕하세요, 김상기 입니다.'
 		, '김상기의 인삿말'
 		, 'skkim@mostisoft.com');
 --==>> (1 row affected)
+
+INSERT INTO TB_BOARD(BOARD_ID, BOARD_TITLE, BOARD_CONTENT, U_ID)
+VALUES(
+		(NEXT VALUE FOR BOARD_SEQ)
+		, '안녕하세요, 김상기 입니다.'
+		, '김상기의 인삿말'
+		, 'skkim@mostisoft.com');
+DELETE
+FROM TB_BOARD;
 ----------------------------------------------------------------------
 -- 003. 데이터 입력(3) 댓글 / TB_REPLY
 INSERT INTO TB_REPLY(REPLY_ID, REPLY_CONTENT, U_ID, BOARD_ID)
-VALUES( (SELECT COUNT(*) + 1 AS [COUNT]
-		 FROM TB_REPLY)
+VALUES( (NEXT VALUE FOR REPLY_SEQ)
 		 , '안녕하세요 저는 김효섭 이에요'
 		 , 'hskim@mostisoft.com'
 		 , 1);
