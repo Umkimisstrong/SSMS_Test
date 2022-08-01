@@ -13,3 +13,6 @@ FROM TB_SAMPLE_USER;
 dfg			dfg			dfgdfgdfg	19961031	xcv		xcv			xcv		xcv		xcv		AUTUMN	N	2022-07-28 14:34:40.293	ghkim2	2022-07-28 14:34:40.293	ghkim2
 */
 
+DELETE
+FROM TB_SAMPLE_USER
+WHERE USER_ID = 'ภฬป๓วิ';
