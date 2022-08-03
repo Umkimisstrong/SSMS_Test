@@ -1,0 +1,14 @@
+-- 프로시저 생성
+-- TODO 조회 : R
+GO
+
+CREATE PROCEDURE TODO_R
+AS
+BEGIN
+	
+	SELECT ROW_NUMBER() OVER(ORDER BY TODO_ID ASC) AS [ROWNUM], TODO_ID, U_TODO, TODO_STATUS
+	FROM TB_TODO
+	WHERE TODO_STATUS != 'D';
+
+END;
+--==>> Commands completed successfully.

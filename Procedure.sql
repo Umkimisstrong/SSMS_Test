@@ -17,6 +17,7 @@ skkim@mostisoft.com	김상기	010-5693-4223
 */
 
 -- 2. 유저 입력
+GO 
 CREATE PROCEDURE UP_USER_C
 (
 	 @U_ID		VARCHAR(200)
@@ -31,6 +32,7 @@ BEGIN
 END;
 
 -- 프로시저 실행
+GO
 	-- 변수 선언
 	DECLARE @U_ID	VARCHAR(200)
 	DECLARE @U_PWD  CHAR(14)

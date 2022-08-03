@@ -1,0 +1,22 @@
+-- 프로시저 생성
+-- TODO 추가 : C
+GO
+CREATE PROCEDURE TODO_C
+(
+	@U_TODO		VARCHAR(200)
+)
+AS
+BEGIN
+	
+	INSERT INTO TB_TODO
+	(
+		  TODO_ID
+		, U_TODO
+	)
+	VALUES
+	(
+		   NEXT VALUE FOR TODO_SEQ
+		, @U_TODO
+	);
+
+END;
