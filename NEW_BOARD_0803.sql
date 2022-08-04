@@ -121,6 +121,8 @@ FROM TB_ANSWER;
 --==>> ANSWER_ID	ANSWER_CONTENT	ANSWER_DATE	BOARD_ID	REPLY_ID	U_ID	DEL_CHECK
 
 ----------------------------------------------------------------------------------------------------
+
+--==================================================================================================
 -- ▶ 프로시저 관련 구문 ◀
 -- 1. 추가 : C
 
@@ -246,43 +248,327 @@ BEGIN
 
 END;
 
-
+--==================================================================================================
 
 -- 2. 조회 : R
 -- ● 프로시저 생성 : 회원 조회 
-      --> 회원 조회 시 STATUS 가 ACTIVE 인 회원만 조회
+      --> 회원 조회 시 ID를 매개변수로 넘겨받는다.
+GO
+CREATE PROCEDURE USER_R
+(
+	@U_ID	VARCHAR(200)
+)
+AS
+BEGIN
+	
+	SELECT U_ID, U_PWD, U_DATE, U_TEL, U_STATUS
+	FROM TB_USER
+	WHERE U_ID = @U_ID;
+
+END;
+--==>>Commands completed successfully.
 
 -- ● 프로시저 생성 : 게시물 조회
       --> 게시물 조회시 DEL_CHECK 이 0 인 게시물만 조회
+	  --> 검색조건중 SEARCH_TYPE, SEARCH_WORD 를 매개변수로 넘겨받아 조회
+	      
+GO
+CREATE PROCEDURE BOARD_R
+(
+	 @SEARCH_TYPE		VARCHAR(100)
+   , @SEARCH_WORD		VARCHAR(100)
+)
+AS
+BEGIN
+	
+	SELECT
+			  ROW_NUMBER() OVER(ORDER BY BOARD_ID DESC) AS [ROWNUM]
+			, B.BOARD_ID       AS [BOARD_ID]
+			, B.BOARD_TITLE    AS [BOARD_TITLE]
+			, B.BOARD_CONTENT  AS [BOARD_CONTENT]
+			, B.BOARD_HITCOUNT AS [BOARD_HITCOUNT]
+			, B.BOARD_DATE     AS [BOARD_DATE]
+			, B.U_ID		   AS [U_ID]
+			, U.U_NAME		   AS [U_NAME]
+			, U.U_TEL		   AS [U_TEL]
+			, U.U_STATUS	   AS [U_STATUS]
+	FROM
+			TB_BOARD B LEFT OUTER JOIN TB_USER U
+			ON B.U_ID = U.U_ID
+	WHERE
+			DEL_CHECK = 0
+	        AND
+			@SEARCH_TYPE LIKE @SEARCH_WORD;
+
+END;
+--==>> Commands completed successfully.
 
 -- ● 프로시저 생성 : 답글 조회
       --> 답글 조회 시 DEL_CHECK 이 0인 답글만 조회
 	  --> 답글의 종속성은 게시물에 있으므로 BOARD_ID 를 매개변수로 한다.
 
+GO
+CREATE PROCEDURE REPLY_R
+(
+	@BOARD_ID	INT
+)
+AS
+BEGIN
+	
+	SELECT
+			  ROW_NUMBER() OVER(ORDER BY REPLY_ID DESC) AS [ROWNUM]
+            , R.REPLY_ID AS [REPLY_ID]
+		    , R.REPLY_CONTENT AS [REPLY_CONTENT]
+			, R.REPLY_DATE AS [REPLY_DATE]
+			, R.BOARD_ID AS [BOARD_ID]
+			, R.U_ID AS [U_ID]
+			, U.U_NAME AS [U_NAME]
+			, U.U_TEL AS [U_TEL]
+			, U.U_STATUS AS [U_STATUS]
+	FROM
+			TB_REPLY R LEFT OUTER JOIN TB_USER U
+			ON R.U_ID = U.U_ID
+	WHERE
+			BOARD_ID = @BOARD_ID
+			AND
+			DEL_CHECK = 0;
+END;
+--==>> Commands completed successfully.
+
 -- ● 프로시저 생성 : 답변 조회
       --> 답변 조회 시 DEL_CHECK 이 0인 답변만 조회
 	  --> 답변의 종속성은 게시물과, 답글에 있으므로 BOARD_ID와 REPLY_ID 를 매개변수로 한다.
+GO
+CREATE PROCEDURE ANSWER_R
+(
+	  @BOARD_ID	  INT
+	, @REPLY_ID	  INT
+)
+AS
+BEGIN
+	
+	SELECT
+			  ROW_NUMBER() OVER(ORDER BY ANSWER_ID DESC) AS ROWNUM
+			, A.ANSWER_ID AS [ANSWER_ID]
+			, A.ANSWER_CONTENT AS [ANSWER_CONTENT]
+			, A.ANSWER_DATE AS [ANSWER_DATE]
+			, A.BOARD_ID AS [BOARD_ID]
+			, A.REPLY_ID AS [REPLY_ID]
+			, A.U_ID AS [U_ID]
+			, U.U_NAME AS [U_NAME]
+			, U.U_TEL AS [U_TEL]
+			, U.U_STATUS AS [U_STATUS]
+
+	FROM
+			TB_ANSWER A LEFT OUTER JOIN TB_USER U
+			ON A.U_ID = U.U_ID
+	WHERE	
+			A.BOARD_ID = @BOARD_ID
+			AND
+			A.REPLY_ID = @REPLY_ID;
+
+END;
+--==>> Commands completed successfully.
+
+--==================================================================================================
 
 -- 3. 수정 : U
       -- ※ 모든 UPDATE 구문은 ID 를 매개변수로 한다.
 	  --    ID 가 없다면 프로시저가 실행되지 않는다.
 	  --    ID 가 있다면 넘겨받을 매개변수는 ID를 제외한 컬럼이 된다.
 
+
 -- ● 프로시저 생성 : 회원 수정
+GO
+CREATE PROCEDURE USER_U
+(
+	  @U_ID		VARCHAR(200)
+    , @U_NAME	VARCHAR(20)
+	, @U_TEL	VARCHAR(13)
+	, @U_STATUS VARCHAR(20)
+)
+AS
+BEGIN
+	
+	UPDATE 
+			TB_USER
+	SET
+			  U_NAME = @U_NAME
+			, U_TEL = @U_TEL
+			, U_STATUS = @U_STATUS
+			, U_DATE = GETDATE()
+	WHERE
+			U_ID = @U_ID;
+END;
+--==>> --==>> Commands completed successfully.
+
+
 -- ● 프로시저 생성 : 게시물 수정
+GO
+CREATE PROCEDURE BOARD_U
+(
+	  @BOARD_ID			INT
+    , @BOARD_TITLE    VARCHAR(300)
+	, @BOARD_CONTENT    VARCHAR(8000)
+)
+AS
+BEGIN
+
+		UPDATE 
+				TB_BOARD
+		SET
+				  BOARD_TITLE = @BOARD_TITLE
+				, BOARD_CONTENT = @BOARD_CONTENT
+		WHERE 
+				BOARD_ID = @BOARD_ID;
+END;
+--==>> Commands completed successfully.
+
+
 -- ● 프로시저 생성 : 답글 수정
+GO
+CREATE PROCEDURE REPLY_U
+(
+	 @BOARD_ID			INT
+   , @REPLY_ID			INT
+   , @REPLY_CONTENT		VARCHAR(100)
+)
+AS
+BEGIN
+	
+		UPDATE	
+				TB_REPLY
+		SET
+				REPLY_CONTENT = @REPLY_CONTENT
+		WHERE 
+				BOARD_ID = @BOARD_ID
+				AND
+				REPLY_ID = @REPLY_ID;
+END;
+--==>> Commands completed successfully.
+
 -- ● 프로시저 생성 : 답변 수정
 
+GO
+CREATE PROCEDURE ANSWER_U
+(
+	  @BOARD_ID		    INT
+	, @REPLY_ID		    INT
+	, @ANSWER_ID		INT
+	, @ANSWER_CONTENT VARCHAR(100)
+)
+AS
+BEGIN
+
+		UPDATE
+				TB_ANSWER
+
+		SET
+				ANSWER_CONTENT = @ANSWER_CONTENT
+				
+		WHERE 
+				BOARD_ID = @BOARD_ID
+				AND
+				REPLY_ID = @REPLY_ID
+				AND
+				ANSWER_ID = @ANSWER_ID;
+END;
+--==>> Commands completed successfully.
 
 -- 4. 삭제 : D
 
 --    ※ 사실상 STATUS 나 DEL_CHECK 을 UPDATE
 
 -- ● 프로시저 생성 : 회원 삭제
--- ● 프로시저 생성 : 게시물 삭제
--- ● 프로시저 생성 : 답글 삭제
--- ● 프로시저 생성 : 답변 삭제
+GO
+CREATE PROCEDURE USER_D
+(
+	@U_ID	VARCHAR(200)
+)
+AS
+BEGIN
+		UPDATE	
+				TB_USER
+		SET
+				U_STATUS = 'NONACTIVE'
+		WHERE
+				U_ID = @U_ID;
 
+END;
+--==>> Commands completed successfully.
+
+-- ● 프로시저 생성 : 게시물 삭제
+GO
+CREATE PROCEDURE BOARD_D
+(
+	  @BOARD_ID	INT
+	, @U_ID		VARCHAR(200)
+)
+AS
+BEGIN
+		UPDATE	
+				TB_BOARD
+		SET
+				DEL_CHECK = 1
+		WHERE
+				BOARD_ID = @BOARD_ID
+				AND
+				U_ID = @U_ID;
+
+END;
+--==>> Commands completed successfully.
+
+-- ● 프로시저 생성 : 답글 삭제
+GO
+CREATE PROCEDURE REPLY_D
+(
+	  @BOARD_ID		  INT
+	, @REPLY_ID		  INT
+	, @U_ID			  VARCHAR(200)
+)
+AS
+BEGIN
+	
+		UPDATE	
+				TB_REPLY
+		SET
+
+				DEL_CHECK = 1
+		WHERE
+				BOARD_ID = @BOARD_ID
+				AND
+				REPLY_ID = @REPLY_ID
+				AND
+				U_ID = @U_ID;
+END;
+--==>> Commands completed successfully.
+-- ● 프로시저 생성 : 답변 삭제
+GO
+CREATE PROCEDURE ANSWER_D
+(
+	  @BOARD_ID		  INT
+	, @REPLY_ID		  INT
+	, @ANSWER_ID	  INT
+	, @U_ID			  VARCHAR(200)
+)
+AS
+BEGIN
+	
+		UPDATE	
+				TB_ANSWER
+		SET
+
+				DEL_CHECK = 1
+		WHERE
+				BOARD_ID = @BOARD_ID
+				AND
+				REPLY_ID = @REPLY_ID
+				AND
+				ANSWER_ID = @ANSWER_ID
+				AND
+				U_ID = @U_ID;
+END;
+--==>> Commands completed successfully.
 
 
 
